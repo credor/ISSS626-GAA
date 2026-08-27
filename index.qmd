@@ -1,5 +1,5 @@
 ---
-title: "ISSS626-GAA"
+title: "ISSS626-GAA by Murat Kaya"
 ---
 
 Welcome to **ISSS626 Geospatial Analytics and Applications.** In this website, you will find my coursework prepared for this course.

@@ -23,8 +23,15 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "ISSS626-GAA",
+    "title": "ISSS626-GAA by Murat Kaya",
     "section": "",
-    "text": "Welcome to ISSS626 Geospatial Analytics and Applications. In this website, you will find my coursework prepared for this course."
+    "text": "Welcome to ISSS626 Geospatial Analytics and Applications. In this website, you will find my coursework prepared for this course.\n\n  \n  ‹\n  ›\n  \n\nPhotographs from Wikimedia Commons, each under a free licence. Credits are shown on every slide."
+  },
+  {
+    "objectID": "index.html#hands-on-exercises",
+    "href": "index.html#hands-on-exercises",
+    "title": "ISSS626-GAA",
+    "section": "Hands-on exercises",
+    "text": "Hands-on exercises\n\n[ ::: {.ex-num} EXERCISE 1 · PART 1\n\n\nGeospatial Data Wrangling\nImport shapefiles and KML with sf, fix a mis-assigned CRS, reproject to SVY21, and answer geoprocessing questions with buffers and spatial intersects. ::: {.pkg} sftidyversedplyrggplot2 ::: ](Hands-on_Ex/Hands-on_Ex01/Hands-on_ex01.html){.ex-card}\n::: {.ex-num} EXERCISE 1 · PART 2 ::: ### Choropleth Mapping Georeference the June 2024 SingStat population table to Master Plan 2019 subzones and build classed choropleth maps with tmap. ::: {.pkg} sftmapreadrtidyr :::\n::: {.ex-num} EXERCISE 2 ::: ### Coming soon Spatial point patterns analysis.\n:::"
   }
 ]
