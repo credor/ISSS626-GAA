@@ -6,8 +6,10 @@ website:
     left:
     - text: "Hands-on Exercise"
       menu:
-        - text: "Hands-on Exercise 1"
-          href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html"
+        - text: "Exercise 1: Geospatial Data Wrangling"
+          href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex01.html"
+        - text: "Exercise 1: Choropleth Mapping"
+          href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex012.html"
     right:
       - href: index.qmd
         text: Home
@@ -16,7 +18,7 @@ website:
 format:
   html:
     theme:
-      - solar
+      - zephyr
       - brand
     css: styles.css
     toc: true

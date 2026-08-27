@@ -1,0 +1,184 @@
+---
+title: "Hands-on Exercise 1: Geospatial Data Wrangling with R"
+format: html
+---
+
+# 1.3 Getting Started
+
+```{r}
+pacman::p_load(sf, tidyverse)
+```
+
+# 1.4 Importing Geospatial Data
+
+```{r}
+# Importing polygon feature data
+
+mpsz = st_read(dsn = "data/geospatial/MasterPlan2014SubzoneBoundary.geojson") |>
+  st_transform(crs = 3414)
+
+# Importing polyline feature data
+
+cyclingpath = st_read(dsn = "data/geospatial/CyclingPath.geojson") |>
+  st_transform(crs = 3414)
+
+# Importing GIS data in geojson format
+
+preschool <- st_read("data/geospatial/PreSchoolsLocation.geojson") |>
+  st_transform(crs = 3414)
+
+```
+
+# 1.5 Checking the Content of A Simple Feature Data Frame
+
+```{r}
+st_geometry(mpsz)
+
+glimpse(mpsz)
+
+head(mpsz, n = 5)
+```
+
+# 1.6 Plotting the Geospatial Data
+
+```{r}
+plot(mpsz)
+
+plot(st_geometry(mpsz))
+
+plot(st_geometry(preschool), 
+     add = TRUE)
+
+plot(mpsz["PLN_AREA_N"])
+
+```
+
+# 1.7 Working with Projection
+
+```{r}
+st_crs(mpsz)
+mpsz <- st_set_crs(mpsz, 3414)
+
+preschool <- st_transform(preschool, 
+                              crs = 3414)
+plot(st_geometry(mpsz))
+plot(st_geometry(preschool), add = TRUE)
+```
+
+# 1.8 Importing and Converting An Aspatial Data
+
+```{r}
+
+# Importing the aspatial data
+
+listings <- read_csv("data/aspatial/listings.csv")
+list(listings) 
+
+# Creating a simple feature data frame from an aspatial data frame
+
+listings_sf <- st_as_sf(listings, 
+                       coords = c("longitude", "latitude"),
+                       crs=4326) %>%
+  st_transform(crs = 3414)
+glimpse(listings_sf)
+
+# Plot Airbnb listings over the subzones
+
+plot(
+  st_geometry(mpsz),
+  col = "lightgrey",
+  border = "white"
+)
+
+plot(
+  st_geometry(listings_sf),
+  add = TRUE,
+  col = "red",
+  pch = 20,
+  cex = 0.3
+)
+```
+
+# 1.9 Geoprocessing with sf package
+
+```{r}
+
+# Use case 1: Land acquisition analysis
+
+buffer_cycling <- st_buffer(
+  cyclingpath, dist=5, nQuadSegs = 30)
+
+buffer_cycling$AREA <- st_area(buffer_cycling)
+
+buffer_cycling <- buffer_cycling %>%
+  mutate(AREA = st_area(geometry))
+
+sum(buffer_cycling$AREA)
+
+mpsz_selected <- mpsz %>%
+  filter(SUBZONE_N == "TAMPINES WEST") 
+
+buffer_cycling_selected <- st_intersection(
+  buffer_cycling, mpsz_selected)
+
+plot(
+  st_geometry(mpsz_selected),
+  col = "lightgrey",
+  border = "black"
+)
+
+plot(
+  st_geometry(buffer_cycling_selected),
+  add = TRUE,
+  col = "lightblue",
+  border = NA
+)
+
+plot(
+  st_geometry(cyclingpath),
+  add = TRUE,
+  col = "blue",
+  lwd = 1
+)
+
+# Use case 2: To determine the number of pre-schools by planning subzone
+
+mpsz$`PreSch Count`<- lengths(st_intersects(mpsz, preschool))
+
+summary(mpsz$`PreSch Count`)
+
+top_n(mpsz, 1, `PreSch Count`)
+
+mpsz$Area <- mpsz %>%
+  st_area()
+
+mpsz <- mpsz %>%
+  mutate(`PreSch Density` = `PreSch Count`/Area * 1000000)
+
+hist(mpsz$`PreSch Density`)
+
+ggplot(data=mpsz, 
+       aes(x= as.numeric(`PreSch Density`)))+
+  geom_histogram(bins=20, 
+                 color="black", 
+                 fill="light blue") +
+  labs(title = "Are pre-school even distributed in Singapore?",
+       subtitle= "There are many planning subzones with a single pre-school, on the other hand, \nthere are seven planning subzones with at least 30 or more pre-schools",
+      x = "Pre-school density (per km sq)",
+      y = "Frequency")
+
+ggplot(data=mpsz, 
+       aes(y = `PreSch Count`, 
+           x= as.numeric(`PreSch Density`)))+
+  geom_point(color="black", 
+             fill="light blue") +
+  xlim(0, 40) +
+  ylim(0, 40) +
+  labs(title = "",
+      x = "Pre-school density (per km sq)",
+      y = "Pre-school count")
+```
+
+---
+title: "Hands-on Exercise 1: Geospatial Data Wrangling with R"
+---
