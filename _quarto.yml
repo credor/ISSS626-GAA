@@ -6,10 +6,14 @@ website:
     left:
     - text: "Hands-on Exercise"
       menu:
-        - text: "Exercise 1: Geospatial Data Wrangling"
+        - text: "Exercise 1A: Geospatial Data Wrangling"
           href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex01.html"
-        - text: "Exercise 1: Choropleth Mapping"
+        - text: "Exercise 1B: Choropleth Mapping"
           href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex012.html"
+        - text: "Exercise 2A: 1st Order Spatial Point Patterns Analysis"
+          href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex02.html"
+        - text: "Exercise 2B: 2nd Order Spatial Point Patterns Analysis"
+          href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex022.html"
     right:
       - href: index.qmd
         text: Home

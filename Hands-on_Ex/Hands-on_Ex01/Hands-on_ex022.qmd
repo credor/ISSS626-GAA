@@ -1,0 +1,226 @@
+---
+title: "Hands-on Exercise 2: 2nd Order Spatial Point Patterns Analysis Methods"
+format: html
+---
+
+# 5.3 Installing and Loading the R packages
+
+```{r}
+pacman::p_load(sf, spatstat, tmap, terra, rvest, tidyverse)
+
+set.seed(1234)
+```
+
+# 5.4 Data Import and Preparation
+
+```{r}
+# Importing Geospatial Data into R
+
+mpsz_sf = st_read(dsn = "data/geospatial/MasterPlan2019SubzoneBoundaryNoSea.geojson") |> 
+  st_zm(drop = TRUE, what = "ZM") |>
+  st_transform(crs = 3414)
+
+extract_kml_field <- function(html_text, field_name) {
+  if (is.na(html_text) || html_text == "") return(NA_character_)
+  
+  page <- read_html(html_text)
+  rows <- page %>% html_elements("tr")
+  
+  value <- rows %>%
+    keep(~ html_text2(html_element(.x, "th")) == field_name) %>%
+    html_element("td") %>%
+    html_text2()
+  
+  if (length(value) == 0) NA_character_ else value
+}
+
+mpsz_sf <- mpsz_sf %>%
+  select(
+    REGION_N,
+    PLN_AREA_N,
+    SUBZONE_N,
+    SUBZONE_C,
+    geometry
+  )
+
+mpsz_cl <- mpsz_sf %>%
+  filter(SUBZONE_N != "SOUTHERN GROUP",
+         PLN_AREA_N != "WESTERN ISLANDS",
+         PLN_AREA_N != "NORTH-EASTERN ISLANDS")
+
+write_rds(mpsz_cl, 
+          "data/mpsz_cl.rds")
+
+childcare_sf <- st_read("data/geospatial/ChildCareServices.geojson") %>% 
+  st_zm(drop = TRUE, what = "ZM") %>%
+  st_transform(crs = 3414)
+
+# Mapping the geospatial data sets
+
+tm_shape(mpsz_cl) +
+  tm_polygons() +
+  tm_shape(childcare_sf) +
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(childcare_sf)+
+  tm_dots()
+
+tmap_mode('plot')
+
+# Converting sf data frames to ppp class
+
+childcare_ppp <- as.ppp(childcare_sf)
+class(childcare_ppp)
+summary(childcare_ppp)
+
+# Creating owin object
+
+sg_owin <- as.owin(mpsz_cl)
+class(sg_owin)
+plot(sg_owin)
+
+# Combining point events object and owin object
+
+childcareSG_ppp = childcare_ppp[sg_owin]
+childcareSG_ppp
+
+# Geospatial data wrangling
+
+pg <- mpsz_cl %>%
+  filter(PLN_AREA_N == "PUNGGOL")
+tm <- mpsz_cl %>%
+  filter(PLN_AREA_N == "TAMPINES")
+ck <- mpsz_cl %>%
+  filter(PLN_AREA_N == "CHOA CHU KANG")
+jw <- mpsz_cl %>%
+  filter(PLN_AREA_N == "JURONG WEST")
+
+par(mfrow=c(2,2))
+plot(st_geometry(pg), main = "Ponggol")
+plot(st_geometry(tm), main = "Tampines")
+plot(st_geometry(ck), main = "Choa Chu Kang")
+plot(st_geometry(jw), main = "Jurong West")
+
+pg_owin = as.owin(pg)
+tm_owin = as.owin(tm)
+ck_owin = as.owin(ck)
+jw_owin = as.owin(jw)
+
+childcare_pg_ppp = childcare_ppp[pg_owin]
+childcare_tm_ppp = childcare_ppp[tm_owin]
+childcare_ck_ppp = childcare_ppp[ck_owin]
+childcare_jw_ppp = childcare_ppp[jw_owin]
+
+childcare_pg_ppp.km = rescale.ppp(childcare_pg_ppp, 1000, "km")
+childcare_tm_ppp.km = rescale.ppp(childcare_tm_ppp, 1000, "km")
+childcare_ck_ppp.km = rescale.ppp(childcare_ck_ppp, 1000, "km")
+childcare_jw_ppp.km = rescale.ppp(childcare_jw_ppp, 1000, "km")
+
+par(mfrow=c(2,2))
+plot(unmark(childcare_pg_ppp.km), 
+     main="Punggol")
+plot(unmark(childcare_tm_ppp.km), 
+     main="Tampines")
+plot(unmark(childcare_ck_ppp.km), 
+     main="Choa Chu Kang")
+plot(unmark(childcare_jw_ppp.km), 
+     main="Jurong West")
+```
+
+# 5.6 Analysing Spatial Point Process Using G-Function
+
+```{r}
+# Choa Chu Kang planning area
+
+G_CK = Gest(childcare_ck_ppp, correction = "border")
+plot(G_CK, xlim=c(0,500))
+
+G_CK.csr <- envelope(childcare_ck_ppp, Gest, nsim = 999)
+
+plot(G_CK.csr)
+
+# Tampines planning area
+
+G_tm = Gest(childcare_tm_ppp, correction = "best")
+plot(G_tm)
+
+G_tm.csr <- envelope(childcare_tm_ppp, Gest, correction = "all", nsim = 999)
+
+plot(G_tm.csr)
+```
+
+# 5.7 Analysing Spatial Point Process Using F-Function
+
+```{r}
+# Choa Chu Kang planning area
+
+F_CK = Fest(childcare_ck_ppp)
+plot(F_CK)
+
+# Performing Complete Spatial Randomness Test
+
+F_CK.csr <- envelope(childcare_ck_ppp, Fest, nsim = 999)
+
+plot(F_CK.csr)
+
+# Tampines planning area
+
+F_tm = Fest(childcare_tm_ppp, correction = "best")
+plot(F_tm)
+
+F_tm.csr <- envelope(childcare_tm_ppp, Fest, correction = "all", nsim = 999)
+
+plot(F_tm.csr)
+```
+
+# 5.8 Analysing Spatial Point Process Using K-Function
+
+```{r}
+# Choa Chu Kang planning area
+
+K_ck = Kest(childcare_ck_ppp, correction = "Ripley")
+plot(K_ck, . -r ~ r, ylab= "K(d)-r", xlab = "d(m)")
+
+K_ck.csr <- envelope(childcare_ck_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
+
+plot(K_ck.csr, . - r ~ r, xlab="d", ylab="K(d)-r")
+
+# Tampines planning area
+
+K_tm = Kest(childcare_tm_ppp, correction = "Ripley")
+plot(K_tm, . -r ~ r, 
+     ylab= "K(d)-r", xlab = "d(m)", 
+     xlim=c(0,1000))
+
+K_tm.csr <- envelope(childcare_tm_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
+
+plot(K_tm.csr, . - r ~ r, 
+     xlab="d", ylab="K(d)-r", xlim=c(0,500))
+```
+
+# 5.9 Analysing Spatial Point Process Using L-Function
+
+```{r}
+# Choa Chu Kang planning area
+
+L_ck = Lest(childcare_ck_ppp, correction = "Ripley")
+plot(L_ck, . -r ~ r, 
+     ylab= "L(d)-r", xlab = "d(m)")
+
+L_ck.csr <- envelope(childcare_ck_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
+
+plot(L_ck.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
+
+# Tampines planning area
+
+L_tm = Lest(childcare_tm_ppp, correction = "Ripley")
+plot(L_tm, . -r ~ r, 
+     ylab= "L(d)-r", xlab = "d(m)", 
+     xlim=c(0,1000))
+
+L_tm.csr <- envelope(childcare_tm_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
+
+plot(L_tm.csr, . - r ~ r, 
+     xlab="d", ylab="L(d)-r", xlim=c(0,500))
+```
