@@ -297,5 +297,3 @@ kbb_stik <- STIKhat(fire_stpp)
 
 plotK(kbb_stik)
 ```
-
-# 
