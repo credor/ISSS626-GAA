@@ -1,6 +1,6 @@
 ---
 title: "Hands-on Exercise 3: Spatio-Temporal Point Patterns Analysis"
-date: "January 23, 2023"
+date: "September 11, 2026"
 date-modified: "last-modified"
 format: html
 execute:
