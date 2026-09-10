@@ -1,0 +1,301 @@
+---
+title: "Hands-on Exercise 3: Spatio-Temporal Point Patterns Analysis"
+date: "January 23, 2023"
+date-modified: "last-modified"
+format: html
+execute:
+  echo: true
+  eval: true
+  message: false
+  warning: false
+  freeze: true
+editor: visual
+---
+
+# 6.3 The Data
+
+Two datasets are used, both covering the 2023 calendar year.
+
+| Dataset | Source | Format | Retrieved | Native CRS |
+|---------------|---------------|---------------|---------------|---------------|
+| Forest fire detections (MODIS C6.1) | NASA FIRMS | CSV | 10 Sep 2026 | none — lat/long columns |
+| Batas Wilayah Kelurahan/Desa 10K | Indonesia Geospasial (BIG) | ESRI Shapefile | 10 Sep 2026 | WGS 84 (EPSG:4326) |
+
+Neither arrives ready to use. The fire data covers a rectangle rather than the province, and the boundary file covers all 38 provinces of Indonesia. This section records how each was obtained and reduced, because two of the decisions affect the numbers reported later.
+
+## Getting the forest fire data
+
+The chapter points to the FIRMS archive download page. That page needs a free NASA Earthdata account, and the request is submitted through a form rather than a direct link. The parameters I used:
+
+| Setting     | Value                                              |
+|-------------|----------------------------------------------------|
+| Region      | Custom Region                                      |
+| Coordinates | `104.5,-3.6,107.6,-1.1` (west, south, east, north) |
+| Fire source | MODIS only                                         |
+| Date range  | 2023-01-01 to 2023-12-31                           |
+| Format      | CSV                                                |
+
+FIRMS emails a link, and the file arrives named `fire_archive_M-C61_803250.csv`. The `M-C61` confirms MODIS Collection 6.1.
+
+Two choices there are worth explaining.
+
+**MODIS only, not VIIRS.** VIIRS has a much finer spatial resolution (375 m against MODIS 1 km) and would return several times as many detections. The chapter specifies MODIS, so ticking VIIRS as well would produce a point pattern that could not be compared to the chapter's at all.
+
+**A bounding box larger than the province.** The province spans roughly 105.1°E to 106.9°E and −3.1°S to −1.5°S. I drew the box wider than that deliberately, so that nothing near the coastline was cut off before the proper clip to the polygon. Over-collecting and then clipping is safe; under-collecting is not recoverable without downloading again.
+
+## Getting the sub-district boundaries
+
+The Indonesia Geospasial portal serves one national file rather than per-province downloads: a 528 MB RAR containing every kelurahan/desa in Indonesia at 1:10,000 scale, sourced from Badan Informasi Geospasial (BIG). The layer I need is `Batas_Wilayah_KelurahanDesa_10K_AR`.
+
+::: callout-tip
+## A shapefile is a bundle, not a file
+
+Six files came out of the archive and all of them matter except the last:
+
+- `.shp` — the geometry
+- `.shx` — the index into the geometry
+- `.dbf` — the attribute table, which holds `WADMPR`, `WADMKK` and the rest
+- `.prj` — the coordinate reference system
+- `.cpg` — the character encoding, which keeps Indonesian place names intact
+- `.shp.xml` — metadata only, not required
+
+Copying only the `.shp` across is a common mistake and produces either a read error or, worse with a missing `.prj`, a layer with no declared CRS. That is the same silent failure discussed in Hands-on Exercise 1.
+:::
+
+## Extracting Kepulauan Bangka Belitung
+
+The relevant attribute fields in the BIG data are:
+
+| Field    | Meaning          |
+|----------|------------------|
+| `WADMPR` | Provinsi         |
+| `WADMKK` | Kabupaten / Kota |
+| `WADMKC` | Kecamatan        |
+| `WADMKD` | Kelurahan / Desa |
+
+The filter is applied to `WADMPR`, the province field:
+
+```{r}
+#| eval: false
+kbb <- admin_all %>%
+  filter(grepl("bangka", WADMPR, ignore.case = TRUE))
+```
+
+## Clipping the fires to the province
+
+A bounding box is not a province. Bangka and Belitung are islands, so most of the box I drew in FIRMS is sea, and its western edge clips a strip of mainland Sumatra. MODIS also detects gas flares and vessels offshore. Clipping to the actual polygon is what "only forest fires within Kepulauan Bangka Belitung" means:
+
+```{r}
+#| eval: false
+fire_pts <- fire_raw %>%
+  st_as_sf(coords = c("longitude", "latitude"),
+           crs = 4326, remove = FALSE)
+
+inside <- lengths(st_intersects(fire_pts, st_union(kbb))) > 0
+fire_kbb <- fire_pts[inside, ]
+```
+
+| Stage                                           | Detections |
+|-------------------------------------------------|------------|
+| Raw MODIS records inside the bounding box       | 4,471      |
+| Retained after clipping to the province polygon | 775        |
+| Dropped (sea, Sumatra, neighbouring provinces)  | 3,696      |
+
+Only 17% of what I downloaded survived the clip. That is the measure of how much a rectangle over an archipelago is not the study area.
+
+# 6.4 Installing and Loading the R packages
+
+```{r}
+pacman::p_load(sf, spatstat, sparr, 
+               tmap, stpp, tidyverse)
+```
+
+# 6.5 Installing and Loading the R packages
+
+```{r}
+# Importing study area
+
+kbb_sf <- st_read(dsn = "data/geospatial",
+                  layer = "Kepulauan_Bangka_Belitung") %>%
+  st_union() %>%
+  st_zm(drop = TRUE, what = "ZM") %>%
+  st_transform(crs = 32748)
+
+# Converting OWIN
+
+kbb_owin <- as.owin(kbb_sf)
+kbb_owin
+
+class(kbb_owin)
+```
+
+# 6.6 Importing and Preparing Forest Fire data
+
+```{r}
+fire_sf <- read_csv("data/aspatial/forestfires.csv") %>%
+  st_as_sf(coords = c("longitude", "latitude"),
+           crs = 4326) %>%
+  st_transform(crs = 32748)
+
+fire_sf <- fire_sf %>%
+  mutate(DayofYear = yday(acq_date)) %>%
+  mutate(Month_num = month(acq_date)) %>%
+  mutate(Month_fac = month(acq_date,
+                           label = TRUE,
+                           abbr = FALSE))
+```
+
+# 6.7 Visualising the Fire Points
+
+```{r}
+# Overall plot
+
+tm_shape(kbb_sf)+
+  tm_polygons() +
+  tm_shape(fire_sf) +
+  tm_dots()
+
+# Visuaising geographic distribution of forest fires by month
+
+tm_shape(kbb_sf)+
+  tm_polygons() +
+  tm_shape(fire_sf) +
+  tm_dots(size = 0.1) +
+  tm_facets(by="Month_fac", 
+            free.coords=FALSE, 
+            drop.units = TRUE)
+```
+
+# 6.8 Computing STKDE by Month
+
+```{r}
+# Extracting forest fires by month
+
+fire_month <- fire_sf %>% 
+  select(Month_num)
+
+# Creating ppp
+
+fire_month_ppp <- as.ppp(fire_month)
+fire_month_ppp
+
+summary(fire_month_ppp)
+
+any(duplicated(fire_month_ppp))
+
+# Including Owin object
+
+fire_month_owin <- fire_month_ppp[kbb_owin]
+summary(fire_month_owin)
+
+plot(fire_month_owin)
+
+# Computing Spatio-temporal KDE
+
+st_kde <- spattemp.density(fire_month_owin)
+summary(st_kde)
+
+# Plotting the spatio-temporal KDE object
+
+tims <- c(7,8,9,10,11,12)
+par(mfcol=c(2,3))
+for(i in tims){ 
+  plot(st_kde, i, 
+       override.par=FALSE, 
+       fix.range=TRUE, 
+       main=paste("KDE at month",i))
+}
+
+
+```
+
+# 6.9 Computing STKDE by Day of Year
+
+```{r}
+# Creating ppp object
+
+fire_yday_ppp <- fire_sf %>% 
+  select(DayofYear) %>%
+  as.ppp()
+
+# Including Owin object
+
+fire_yday_owin <- fire_yday_ppp[kbb_owin]
+summary(fire_yday_owin)
+
+# 
+
+kde_yday <- spattemp.density(
+  fire_yday_owin)
+summary(kde_yday)
+
+plot(kde_yday)
+```
+
+# 6.10 Computing STKDE by Day of Year: Improved method
+
+```{r}
+set.seed(1234)
+BOOT.spattemp(fire_yday_owin) 
+
+# Computing spatio-temporal KDE
+
+kde_yday <- spattemp.density(fire_yday_owin,
+                             h = 9000,
+                             lambda = 19)
+summary(kde_yday)
+
+# Plotting the output spatio-temporal KDE
+
+plot(kde_yday)
+```
+
+# 
+
+```{r}
+# Creating ppp object
+
+fire_yday_ppp <- fire_sf %>% 
+  select(DayofYear) %>%
+  as.ppp()
+
+# Including Owin object
+
+fire_yday_owin <- fire_yday_ppp[kbb_owin]
+summary(fire_yday_owin)
+
+# 
+
+kde_yday <- spattemp.density(
+  fire_yday_owin)
+summary(kde_yday)
+
+plot(kde_yday)
+```
+
+# 6.11 Spatio-temporal Point Patterns Analysis: stpp methods
+
+```{r}
+# Preparing spatio-temporal point process object of stpp
+
+coords <- st_coordinates(fire_sf)
+
+fire_df <- data.frame(
+  x = coords[, 1],  
+  y = coords[, 2],
+  t = fire_sf$`DayofYear`)
+
+fire_stpp <- as.3dpoints(fire_df)
+
+class(fire_stpp)
+
+plot(fire_stpp)
+
+# Computing spatio-temporal k-function
+
+kbb_stik <- STIKhat(fire_stpp)
+
+plotK(kbb_stik)
+```
+
+# 
