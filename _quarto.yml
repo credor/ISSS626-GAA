@@ -20,10 +20,18 @@ website:
           href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex03.html"
         - text: "Exercise 4: Spatial Weights and Applications"
           href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex04.html"
+        - text: "Exercise 5A: Global Measures of Spatial Autocorrelation"
+          href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex05.html"
+        - text: "Exercise 5B: Local Measures of Spatial Autocorrelation"
+          href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex052.html"
     - text: "In-Class Exercise"
       menu:
         - text: "In-Class Exercise 4"
           href: "In-class_Ex/In-class_Ex04.html"
+    - text: "Take-home Exercise"
+      menu:
+        - text: "Take-home Exercise 1"
+          href: "Take-home_Ex/Take-home_Ex01.html"
     right:
       - href: index.qmd
         text: Home

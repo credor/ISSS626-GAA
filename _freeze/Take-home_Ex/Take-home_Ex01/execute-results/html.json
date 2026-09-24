@@ -1,0 +1,15 @@
+{
+  "hash": "5e200e947f9016dd58b54adc3c8a3e9c",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Take-home Exercise 1\"\nauthor: \"Murat Kaya\"\nformat: html\ndate: \"September 18, 2026\"\ndate-modified: today\nexecute:\n  echo: true\n  eval: true\n  warning: false\n  freeze: true\n  message: false\n---\n\n\n::: {.cell}\n\n:::\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

@@ -1,0 +1,17 @@
+---
+title: "Take-home Exercise 1"
+author: "Murat Kaya"
+format: html
+date: "September 18, 2026"
+date-modified: today
+execute:
+  echo: true
+  eval: true
+  warning: false
+  freeze: true
+  message: false
+---
+
+```{r}
+
+```
