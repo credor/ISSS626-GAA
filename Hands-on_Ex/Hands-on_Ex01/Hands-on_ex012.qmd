@@ -1,6 +1,13 @@
 ---
 title: "Hands-on Exercise 1: Choropleth Mapping with R"
 format: html
+execute:
+  echo: true
+  eval: true
+  message: false
+  warning: false
+  freeze: true
+editor: visual
 ---
 
 # 2.2 Getting Started

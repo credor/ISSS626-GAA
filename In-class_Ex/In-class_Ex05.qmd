@@ -1,0 +1,124 @@
+---
+title: "Hands-on Exercise 5A: Global Measures of Spatial Autocorrelation"
+date: "September 17, 2026"
+date-modified: "last-modified"
+format: html
+execute:
+  echo: true
+  eval: true
+  message: false
+  warning: false
+  freeze: true
+editor: visual
+---
+
+# Getting Started
+
+```{r}
+pacman::p_load(sf, sfdep, tmap, tidyverse)
+```
+
+# Getting the Data Into R Environment
+
+```{r}
+# Import shapefile into r environment
+
+hunan <- st_read(dsn = "data/geospatial", 
+                 layer = "Hunan")
+
+# Import csv file into r environment
+
+hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
+
+# Performing relational join
+
+hunan <- left_join(hunan,hunan2012) %>%
+  select(1:4, 7, 15, 33)
+
+# Visualising Regional Development Indicator
+
+equal <- tm_shape(hunan) +
+  tm_polygons(fill = "GDPPC",
+              fill.scale = tm_scale_intervals(
+                style = "equal",
+                n = 5,
+                values = "brewer.blues")) +
+  tm_borders(fiil_alpha = 0.5) + 
+  tm_layout(legend.position = c("left", "bottom"), 
+            main.title = "Equal interval classification")
+
+quantile <- tm_shape(hunan) +
+  tm_polygons(fill = "GDPPC",
+              fill.scale = tm_scale_intervals(
+                style = "quantile",
+                n = 5)) +
+  tm_borders(fiil_alpha = 0.5) + 
+  tm_layout(legend.position = c("left", "bottom"), 
+            main.title = "Quantile classification")
+
+tmap_arrange(equal, 
+             quantile, 
+             asp=1, 
+             ncol=2)
+```
+
+# Global Measures of Spatial Association
+
+```{r}
+# Computing Contiguity Spatial Weights
+
+wm_q <- hunan %>%
+  mutate(nb = st_contiguity(geometry),
+         wt = st_weights(nb,
+                         style = "W"),
+         .before =1)
+```
+
+# Global Moran’ I
+
+```{r}
+# Computing Global Moran I
+
+moranI <- global_moran(wm_q$GDPPC,
+                       wm_q$nb,
+                       wm_q$wt)
+glimpse(moranI)
+
+# Performing Global Moran I permutation test
+
+set.seed(1234)
+
+global_moran_perm(wm_q$GDPPC,
+                  wm_q$nb,
+                  wm_q$wt,
+                  nsim = 99)
+
+# Computing local Moran's I
+
+lisa <- wm_q %>%
+  mutate(local_moran = local_moran(
+    GDPPC, nb, wt, nsim = 99),
+    .before = 1) %>%
+  unnest(local_moran)
+
+# Plotting LISA map
+
+lisa_sig <- lisa %>%
+  filter(p_ii_sim < 0.05)
+
+tmap_mode("plot")
+
+tm_shape(lisa) +
+  tm_polygons() +
+  tm_borders(col_alpha = 0.5) +
+  tm_shape(lisa_sig) +
+  tm_polygons(
+    fill = "mean",
+    fill.legend = tm_legend(
+      text.size = 1.15,
+      title.size = 1.25,
+      width = 6
+    )
+  ) +
+  tm_borders(col_alpha = 0.4)
+```

@@ -9,7 +9,7 @@
 <meta name="author" content="Murat Kaya">
 <meta name="dcterms.date" content="2026-09-18">
 
-<title>Take-home Exercise 1 – ISSS626-GAA</title>
+<title>Take-home Exercise 1: Geospatial Analytics for Public Safety – ISSS626-GAA</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -27,6 +27,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -145,6 +180,10 @@ ul.task-list li input[type="checkbox"] {
     <a class="dropdown-item" href="../In-class_Ex/In-class_Ex04.html">
  <span class="dropdown-text">In-Class Exercise 4</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../In-class_Ex/In-class_Ex05.html">
+ <span class="dropdown-text">In-Class Exercise 5</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -179,15 +218,43 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#executive-summary" id="toc-executive-summary" class="nav-link active" data-scroll-target="#executive-summary">Executive Summary</a></li>
+  <li><a href="#setting-the-scene" id="toc-setting-the-scene" class="nav-link" data-scroll-target="#setting-the-scene">Setting the Scene</a></li>
+  <li><a href="#objectives" id="toc-objectives" class="nav-link" data-scroll-target="#objectives">Objectives</a></li>
+  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data">The Data</a></li>
+  <li><a href="#study-design-and-assumptions" id="toc-study-design-and-assumptions" class="nav-link" data-scroll-target="#study-design-and-assumptions">Study Design and Assumptions</a></li>
+  <li><a href="#the-tasks" id="toc-the-tasks" class="nav-link" data-scroll-target="#the-tasks">The Tasks</a>
+  <ul class="collapse">
+  <li><a href="#task-1-data-preparation" id="toc-task-1-data-preparation" class="nav-link" data-scroll-target="#task-1-data-preparation">Task 1: Data Preparation</a>
+  <ul class="collapse">
+  <li><a href="#data-acquisition" id="toc-data-acquisition" class="nav-link" data-scroll-target="#data-acquisition"><strong>Data Acquisition</strong></a></li>
+  <li><a href="#data-wrangling-and-quality-assessment" id="toc-data-wrangling-and-quality-assessment" class="nav-link" data-scroll-target="#data-wrangling-and-quality-assessment">Data Wrangling and Quality Assessment</a></li>
+  </ul></li>
+  <li><a href="#task-2-first-order-point-pattern-analysis" id="toc-task-2-first-order-point-pattern-analysis" class="nav-link" data-scroll-target="#task-2-first-order-point-pattern-analysis">Task 2: First-Order Point-Pattern Analysis</a></li>
+  <li><a href="#task-3-second-order-point-pattern-analysis" id="toc-task-3-second-order-point-pattern-analysis" class="nav-link" data-scroll-target="#task-3-second-order-point-pattern-analysis">Task 3: Second-Order Point-Pattern Analysis</a></li>
+  <li><a href="#task-4-integration-and-interpretation" id="toc-task-4-integration-and-interpretation" class="nav-link" data-scroll-target="#task-4-integration-and-interpretation">Task 4: <strong>Integration and Interpretation</strong></a></li>
+  <li><a href="#task-5-geovisualisation-and-analytical-interpretation" id="toc-task-5-geovisualisation-and-analytical-interpretation" class="nav-link" data-scroll-target="#task-5-geovisualisation-and-analytical-interpretation">Task 5: Geovisualisation and Analytical Interpretation</a>
+  <ul class="collapse">
+  <li><a href="#kde-map" id="toc-kde-map" class="nav-link" data-scroll-target="#kde-map">KDE map</a></li>
+  <li><a href="#l-function-graph" id="toc-l-function-graph" class="nav-link" data-scroll-target="#l-function-graph">L-function graph</a></li>
+  </ul></li>
+  <li><a href="#task-6-public-safety-planning-and-management" id="toc-task-6-public-safety-planning-and-management" class="nav-link" data-scroll-target="#task-6-public-safety-planning-and-management">Task 6: Public-Safety Planning and Management</a></li>
+  </ul></li>
+  <li><a href="#bonus-value-added-analysis" id="toc-bonus-value-added-analysis" class="nav-link" data-scroll-target="#bonus-value-added-analysis">Bonus: Value-Added Analysis</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Take-home Exercise 1</h1>
+<h1 class="title">Take-home Exercise 1: Geospatial Analytics for Public Safety</h1>
 </div>
 
 
@@ -211,7 +278,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">September 24, 2026</p>
+      <p class="date-modified">September 26, 2026</p>
     </div>
   </div>
     
@@ -222,8 +289,708 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="executive-summary" class="level1">
+<h1>Executive Summary</h1>
+<a href="Executive_Summary_Ex01.html" target="_blank" rel="noopener">
+  View presentation slides
+</a>
+</section>
+<section id="setting-the-scene" class="level1">
+<h1>Setting the Scene</h1>
+<p>Public safety concerns the protection of the public, communities, and critical infrastructure from crimes, disasters, accidents, and other major threats through coordinated government and agency action. Geospatial analytics supports this effort by transforming multi-source, location-based data into visual evidence, analytical insights, and decision support across domains such as law enforcement, emergency management, transportation safety, and environmental management.</p>
+<p>A spatial point pattern is a collection of locations at which events occur, such as forest-fire detections or road traffic accidents. A spatio-temporal point pattern also records when each event occurs, enabling analysts to examine how events are distributed and interact across both space and time. Understanding where and when such events occur helps planners and managers identify areas of concern, allocate resources, and develop evidence-informed prevention and response strategies.</p>
+</section>
+<section id="objectives" class="level1">
+<h1>Objectives</h1>
+<p>This take-home exercise investigates the spatial and/or spatio-temporal patterns of public-safety point events using:</p>
+<ul>
+<li><strong>Road traffic accidents</strong> within the Bangkok Greater Metropolitan Area for 2022</li>
+</ul>
+<p>The specific objectives are:</p>
+<ul>
+<li><p>To prepare and integrate real-world geospatial and temporal data for spatial and spatio-temporal point-pattern analysis.</p></li>
+<li><p>To investigate first-order properties of the point pattern by examining how the intensity or distribution of events varies across space and/or time.</p></li>
+<li><p>To investigate second-order properties by examining whether events exhibit evidence of spatial or spatio-temporal interaction, such as clustering, inhibition, or approximate randomness.</p></li>
+<li><p>To critically evaluate the analytical assumptions, methodological choices, and limitations associated with the selected point-pattern methods.</p></li>
+<li><p>To communicate the analytical findings effectively through appropriate geovisualisation and geocommunication.</p></li>
+<li><p>To translate the analytical evidence into meaningful implications for public-safety planning and management.</p></li>
+</ul>
+</section>
+<section id="the-data" class="level1">
+<h1>The Data</h1>
+<p>Recorded road accidents in Thailand from 2022 were used. The data was downloaded from:</p>
+<p><a href="https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022" class="uri">https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022</a></p>
+<p>The Thailand Subnational Administrative Boundaries dataset (geoBoundaries-THA-ADM1.geojson) was downloaded from:</p>
+<p><a href="https://data.humdata.org/dataset/geoboundaries-admin-boundaries-for-thailand" class="uri">https://data.humdata.org/dataset/geoboundaries-admin-boundaries-for-thailand</a></p>
+</section>
+<section id="study-design-and-assumptions" class="level1">
+<h1>Study Design and Assumptions</h1>
+<p>Each point represents one recorded road traffic accident, identified by acc_code and located using its longitude and latitude. Exact duplicate rows are removed. Separate accidents occurring at the same coordinates are retained because a location can experience multiple accidents.</p>
+<p>The study covers accidents occurring between 1 January and 31 December 2022. Records are selected using the incident date rather than the reporting date, since an accident may be reported later.</p>
+<p>The study area comprises Bangkok, Nonthaburi, Pathum Thani, Samut Prakan, Samut Sakhon and Nakhon Pathom. These six province boundaries define the Bangkok Metropolitan Region observation window. Only accident points within this window are included.</p>
+<p>Accident coordinates are treated as WGS 84 (EPSG:4326). Both accident points and boundaries are transformed to UTM Zone 47N (EPSG:32647), allowing distances to be measured in metres. The point-pattern object is subsequently rescaled to kilometres for easier interpretation.</p>
+<p>The analysis assumes that retained coordinates adequately represent accident locations.</p>
+</section>
+<section id="the-tasks" class="level1">
+<h1>The Tasks</h1>
+<section id="task-1-data-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="task-1-data-preparation">Task 1: Data Preparation</h2>
+<section id="data-acquisition" class="level3">
+<h3 class="anchored" data-anchor-id="data-acquisition"><strong>Data Acquisition</strong></h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Thailand Road Accident [2019–2022]</th>
+<th>Thailand Administrative Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Source</strong></td>
+<td><a href="https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022">Kaggle: Thailand Road Accident [2019–2022]</a></td>
+<td><a href="https://data.humdata.org/dataset/geoboundaries-admin-boundaries-for-thailand">Humanitarian Data Exchange: Thailand Administrative Boundaries</a>, produced by geoBoundaries.</td>
+</tr>
+<tr class="even">
+<td><strong>Date of access</strong></td>
+<td>24 September 2026.</td>
+<td>24 September 2026.</td>
+</tr>
+<tr class="odd">
+<td><strong>Geographic coverage</strong></td>
+<td>Recorded road traffic accidents across Thailand. For this study, records will be restricted to Bangkok, Nonthaburi, Pathum Thani, Samut Prakan, Samut Sakhon and Nakhon Pathom.</td>
+<td>Administrative boundaries covering Thailand. The dataset provides ADM1 layer. Province-level boundaries will be used to define the study area.</td>
+</tr>
+<tr class="even">
+<td><strong>Temporal coverage</strong></td>
+<td>The source dataset covers 2019–2022. This study only uses 2022 accident data and retains events occurring between 1 January and 31 December 2022.</td>
+<td>A static representation of administrative boundaries.</td>
+</tr>
+<tr class="odd">
+<td><strong>Relevant characteristics</strong></td>
+<td>The supplied CSV contains accident-level records with 18 variables. These include accident identifiers, incident and reporting timestamps, province names, reporting agencies, routes, vehicle types, presumed causes, accident types, numbers of vehicles involved, fatalities, injuries, weather conditions, coordinates and road characteristics. Longitude and latitude enable conversion into spatial points.</td>
+<td>Vector polygon boundaries available in GeoJSON. The current ADM1 release contains 77 administrative units. Selected polygons can be combined into a single study window for spatial filtering, mapping and point-pattern analysis.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="data-wrangling-and-quality-assessment" class="level3">
+<h3 class="anchored" data-anchor-id="data-wrangling-and-quality-assessment">Data Wrangling and Quality Assessment</h3>
+<section id="data-import" class="level4">
+<h4 class="anchored" data-anchor-id="data-import">Data import</h4>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, tidyverse, spatstat, tmap, knitr, rmarkdown)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Import accident records</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>accidents <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/thai_road_accident_2022.csv"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import administrative boundaries</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>thailand_adm1 <span class="ot">&lt;-</span> <span class="fu">st_read</span>(</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data/geospatial/geoBoundaries-THA-ADM1.geojson"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `geoBoundaries-THA-ADM1' from data source 
+  `/Users/muratkaya/Desktop/credor/ISSS626-GAA/Take-home_Ex/data/geospatial/geoBoundaries-THA-ADM1.geojson' 
+  using driver `GeoJSON'
+Simple feature collection with 77 features and 5 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 97.34381 ymin: 5.612851 xmax: 105.6368 ymax: 20.46483
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect the imported data</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(accidents)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 20,843
+Columns: 17
+$ acc_code                    &lt;dbl&gt; 6566872, 6566880, 5706553, 5485750, 562445…
+$ incident_datetime           &lt;chr&gt; "1.01.2022 00:01", "1.01.2022 00:01", "1.0…
+$ report_datetime             &lt;chr&gt; "2.01.2022 11:45", "2.01.2022 11:44", "9.0…
+$ province_en                 &lt;chr&gt; "Chai Nat", "Maha Sarakham", "Chumphon", "…
+$ agency                      &lt;chr&gt; "department of rural roads", "department o…
+$ vehicle_type                &lt;chr&gt; "motorcycle", "motorcycle", "private/passe…
+$ presumed_cause              &lt;chr&gt; "driving under the influence of alcohol", …
+$ accident_type               &lt;chr&gt; "other", "other", "rollover/fallen on stra…
+$ number_of_vehicles_involved &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 1, 2, 1, …
+$ number_of_fatalities        &lt;dbl&gt; 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ number_of_injuries          &lt;dbl&gt; 1, 1, 0, 1, 2, 0, 1, 1, 2, 1, 1, 1, 1, 1, …
+$ weather_condition           &lt;chr&gt; "clear", "dark", "clear", "clear", "clear"…
+$ latitude                    &lt;dbl&gt; 15.113158, 16.489238, 10.625082, 7.934514,…
+$ longitude                   &lt;dbl&gt; 99.98124, 103.07762, 99.17715, 98.27715, 1…
+$ road_description            &lt;chr&gt; "straight road", "straight road", "straigh…
+$ slope_description           &lt;chr&gt; "no slope", "no slope", "no slope", "no sl…
+$ incident_time               &lt;dttm&gt; 2021-12-31 17:01:00, 2021-12-31 17:01:00,…</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(thailand_adm1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 77 features and 5 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 97.34381 ymin: 5.612851 xmax: 105.6368 ymax: 20.46483
+Geodetic CRS:  WGS 84
+First 10 features:
+                    shapeName shapeISO                 shapeID shapeGroup
+1             Roi Et Province    TH-45 36821470B96343765829948        THA
+2             Phayao Province    TH-56 36821470B12194119812739        THA
+3       Nakhon Sawan Province    TH-60 36821470B58837026258254        THA
+4   Nong Bua Lam Phu Province    TH-39 36821470B48254980905782        THA
+5       Chachoengsao Province    TH-24 36821470B91271468807469        THA
+6              Surin Province    TH-32 36821470B33660676013176        THA
+7  Nakhon Ratchasima Province    TH-30 36821470B25997690360286        THA
+8          Sukhothai Province    TH-64 36821470B85895478064474        THA
+9        Phetchaburi Province    TH-76 36821470B90667358259218        THA
+10        Chaiyaphum Province    TH-36 36821470B61102131347890        THA
+   shapeType                       geometry
+1       ADM1 MULTIPOLYGON (((103.5111 16...
+2       ADM1 MULTIPOLYGON (((99.68719 19...
+3       ADM1 MULTIPOLYGON (((99.08899 15...
+4       ADM1 MULTIPOLYGON (((102.0808 17...
+5       ADM1 MULTIPOLYGON (((100.849 13....
+6       ADM1 MULTIPOLYGON (((103.4048 15...
+7       ADM1 MULTIPOLYGON (((101.4098 15...
+8       ADM1 MULTIPOLYGON (((99.31601 17...
+9       ADM1 MULTIPOLYGON (((99.20417 13...
+10      ADM1 MULTIPOLYGON (((102.3347 15...</code></pre>
+</div>
+</div>
+</section>
+<section id="data-inspection-cleaning" class="level4">
+<h4 class="anchored" data-anchor-id="data-inspection-cleaning">Data inspection &amp; cleaning</h4>
+<p>Initial inspection examines variable types, missing values, duplicate records and the coordinate reference system.</p>
+<p>First, I exclude records from 2019–2021 and remove the province_th and route columns from the original downloaded csv. The remaining 2022 accident dataset contains 21,032 records and 16 variables. These two columns were removed because they contain Thai text, which I cannot read or understand.</p>
+<p>Then, I check for duplicate rows and remove any duplicates, retaining one copy of each row. I then identify rows with missing coordinates (latitude and/or longitude) and remove them.</p>
+<p>I then check for and remove invalid coordinates. Latitude must be between −90 and 90, and longitude between −180 and 180. is.finite() also excludes missing or infinite values.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove accidents occurring in 2019, 2020 and 2021</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>accidents_clean <span class="ot">&lt;-</span> accidents <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">incident_time =</span> <span class="fu">dmy_hm</span>(incident_datetime, <span class="at">tz =</span> <span class="st">"Asia/Bangkok"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(<span class="fu">year</span>(incident_time) <span class="sc">%in%</span> <span class="dv">2019</span><span class="sc">:</span><span class="dv">2021</span>))</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Count exact duplicate rows</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">duplicated</span>(accidents_clean))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># View exact duplicate rows</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>accidents_clean[<span class="fu">duplicated</span>(accidents_clean), ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 17
+# ℹ 17 variables: acc_code &lt;dbl&gt;, incident_datetime &lt;chr&gt;,
+#   report_datetime &lt;chr&gt;, province_en &lt;chr&gt;, agency &lt;chr&gt;, vehicle_type &lt;chr&gt;,
+#   presumed_cause &lt;chr&gt;, accident_type &lt;chr&gt;,
+#   number_of_vehicles_involved &lt;dbl&gt;, number_of_fatalities &lt;dbl&gt;,
+#   number_of_injuries &lt;dbl&gt;, weather_condition &lt;chr&gt;, latitude &lt;dbl&gt;,
+#   longitude &lt;dbl&gt;, road_description &lt;chr&gt;, slope_description &lt;chr&gt;,
+#   incident_time &lt;dttm&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove exact duplicates, keeping one copy</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>accidents_clean <span class="ot">&lt;-</span> accidents_clean <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>()</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Confirm no exact duplicates remain</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">duplicated</span>(accidents_clean))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check whether there are any duplicate accident IDs</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>accidents_clean <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(acc_code) <span class="sc">%&gt;%</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 2
+# ℹ 2 variables: acc_code &lt;dbl&gt;, n &lt;int&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Identify rows missing latitude and/or longitude</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>missing_coordinates <span class="ot">&lt;-</span> accidents_clean <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(latitude) <span class="sc">|</span> <span class="fu">is.na</span>(longitude))</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Count these rows</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(missing_coordinates)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove them, keeping rows with both coordinates</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>accidents_clean <span class="ot">&lt;-</span> accidents_clean <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(latitude) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(longitude))</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Identify invalid coordinates</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>invalid_coordinates <span class="ot">&lt;-</span> accidents_clean <span class="sc">%&gt;%</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.finite</span>(latitude) <span class="sc">|</span> <span class="sc">!</span><span class="fu">is.finite</span>(longitude) <span class="sc">|</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">between</span>(latitude, <span class="sc">-</span><span class="dv">90</span>, <span class="dv">90</span>) <span class="sc">|</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">between</span>(longitude, <span class="sc">-</span><span class="dv">180</span>, <span class="dv">180</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Count and inspect affected rows</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(invalid_coordinates)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>invalid_coordinates</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 17
+# ℹ 17 variables: acc_code &lt;dbl&gt;, incident_datetime &lt;chr&gt;,
+#   report_datetime &lt;chr&gt;, province_en &lt;chr&gt;, agency &lt;chr&gt;, vehicle_type &lt;chr&gt;,
+#   presumed_cause &lt;chr&gt;, accident_type &lt;chr&gt;,
+#   number_of_vehicles_involved &lt;dbl&gt;, number_of_fatalities &lt;dbl&gt;,
+#   number_of_injuries &lt;dbl&gt;, weather_condition &lt;chr&gt;, latitude &lt;dbl&gt;,
+#   longitude &lt;dbl&gt;, road_description &lt;chr&gt;, slope_description &lt;chr&gt;,
+#   incident_time &lt;dttm&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep valid coordinates</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>accidents_clean <span class="ot">&lt;-</span> accidents_clean <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">is.finite</span>(latitude),</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">is.finite</span>(longitude),</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">between</span>(latitude, <span class="sc">-</span><span class="dv">90</span>, <span class="dv">90</span>),</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">between</span>(longitude, <span class="sc">-</span><span class="dv">180</span>, <span class="dv">180</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the cleaned data</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(accidents_clean, <span class="st">"data/aspatial/thai_road_accident_2022.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+</section>
+<section id="task-2-first-order-point-pattern-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="task-2-first-order-point-pattern-analysis">Task 2: First-Order Point-Pattern Analysis</h2>
+<p>Kernel Density Estimation (KDE) is used to examine how recorded accident intensity varies across the Bangkok Metropolitan Region (BMR). It converts accident locations into a continuous density surface, making concentrations easier to identify.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select the six BMR provinces</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>bmr <span class="ot">&lt;-</span> thailand_adm1 <span class="sc">%&gt;%</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(shapeISO <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"TH-10"</span>, <span class="st">"TH-11"</span>, <span class="st">"TH-12"</span>,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"TH-13"</span>, <span class="st">"TH-73"</span>, <span class="st">"TH-74"</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">32647</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the cleaned accident records into spatial points</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>accidents_sf <span class="ot">&lt;-</span> accidents_clean <span class="sc">%&gt;%</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"longitude"</span>, <span class="st">"latitude"</span>),</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> <span class="dv">4326</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">32647</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Converting the data into the objects required by spatstat. The BMR boundary defines the observation window and only accidents inside it are retained.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert accidents into a point-pattern object</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>accidents_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(accidents_sf)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the study window</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>bmr_owin <span class="ot">&lt;-</span> <span class="fu">as.owin</span>(bmr)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Retain accidents within BMR</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>accidents_bmr_ppp <span class="ot">&lt;-</span> accidents_ppp[bmr_owin]</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Analyse accident locations without attribute marks</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>accidents_bmr_ppp <span class="ot">&lt;-</span> <span class="fu">unmark</span>(accidents_bmr_ppp)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Change distance units from metres to kilometres</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>accidents_bmr_km <span class="ot">&lt;-</span> <span class="fu">rescale.ppp</span>(</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  accidents_bmr_ppp, <span class="dv">1000</span>, <span class="st">"km"</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect and plot the point pattern</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(accidents_bmr_km)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Planar point pattern:  3599 points
+Average intensity 0.4732986 points per square km
+
+*Pattern contains duplicated points*
+
+Coordinates are given to 13 decimal places
+
+Window: polygonal boundary
+single connected closed polygon with 1699 vertices
+enclosing rectangle: [587.1304, 712.4417] x [1484.7489, 1579.0872] km
+                     (125.3 x 94.34 km)
+Window area = 7604.08 square km
+Unit of length: 1 km
+Fraction of frame area: 0.643</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  accidents_bmr_km,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Recorded Road Accidents in BMR, 2022"</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Compute the density surface</strong></p>
+<p>Using a Gaussian kernel with an automatically selected Diggle bandwidth. Rescaling the coordinates to kilometres makes the density values represent recorded accidents per square kilometre for 2022.</p>
+<p>Kernel Density Estimation (KDE) is used to identify where recorded road accidents are concentrated within BMR. It transforms individual accident locations into a smooth surface showing estimated accidents per square kilometre during 2022.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the selected bandwidth in kilometres</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bw.diggle</span>(accidents_bmr_km)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     sigma 
+0.02307687 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate KDE</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>kde_diggle <span class="ot">&lt;-</span> <span class="fu">density</span>(</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  accidents_bmr_km,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma =</span> bw.diggle,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">edge =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"gaussian"</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the density map and its summary</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  kde_diggle,</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Accident Intensity in BMR, 2022"</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(kde_diggle)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>real-valued pixel image
+128 x 128 pixel array (ny, nx)
+enclosing rectangle: [587.1304, 712.4417] x [1484.749, 1579.087] km
+dimensions of each pixel: 0.979 x 0.7370174 km
+Image is defined on a subset of the rectangular grid
+Subset area = 7601.38225210896 square km
+Subset area fraction = 0.643
+Pixel values (inside window):
+    range = [-1.526474e-14, 88.69966]
+    integral = 3595
+    mean = 0.4729403</code></pre>
+</div>
+</div>
+<p>The bandwidth is selected automatically using bw.diggle. It controls the amount of smoothing: smaller bandwidths reveal local concentrations, while larger bandwidths show broader patterns. A Gaussian kernel gives nearby accidents greater influence than distant accidents.</p>
+<p>Areas with higher intensity contain greater concentrations of recorded accidents and may warrant closer road-safety investigation. Areas with lower intensity have fewer recorded accidents per unit area. These patterns describe accident concentration, rather than risk per road user, because traffic volume is not considered.</p>
+<p>The KDE map shows uneven recorded accident intensity across BMR in 2022. The highest intensity appears along a short corridor in the southeastern part of the study area with additional concentrations extending through central and southern areas. Much of the western and northern area has lower intensity. The narrow, connected concentrations suggest a pattern associated with transport corridors.</p>
+</section>
+<section id="task-3-second-order-point-pattern-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="task-3-second-order-point-pattern-analysis">Task 3: Second-Order Point-Pattern Analysis</h2>
+<p><strong>Research question:</strong> Do recorded accidents in BMR during 2022 show clustering or regularity at different distances compared with complete spatial randomness?</p>
+<p>The L-function summarises neighbouring events across a range of distances. Plotting L(r) - r gives a theoretical reference of zero under complete spatial randomness. The simulation envelope helps assess whether departures exceed the variation expected.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Randomly select up to 1,000 accidents</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>accidents_sample <span class="ot">&lt;-</span> accidents_bmr_km[</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample</span>(</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">npoints</span>(accidents_bmr_km),</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="dv">1000</span>, <span class="fu">npoints</span>(accidents_bmr_km))</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the L-function with 28 simulations</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>L_accidents <span class="ot">&lt;-</span> <span class="fu">envelope</span>(</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>  accidents_sample,</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>  Lest,</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">correction =</span> <span class="st">"Ripley"</span>,</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">nsim =</span> <span class="dv">28</span>,</span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrval =</span> <span class="dv">100</span>,</span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">global =</span> <span class="cn">FALSE</span></span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Generating 28 simulated realisations of CSR  ...
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+21, 22, 23, 24, 25, 26, 27, 
+28.
+
+Done.</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  L_accidents, . <span class="sc">-</span> r <span class="sc">~</span> r,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"BMR Accidents: Sampled L-function"</span>,</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Distance (km)"</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"L(r) - r"</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The null model is complete spatial randomness (CSR). Under this model, accident locations are independent and equally likely throughout the BMR observation window.</p>
+<p>CSR provides a simple baseline for assessing spatial uniformity. However, it is a limited reference for road accidents because roads and traffic are unevenly distributed.</p>
+<p>The analysis assumes that coordinates adequately represent accident locations and the BMR boundary defines the observation window. Distances are straight-line distances in kilometres. The conventional L-function uses a spatially homogeneous and directionally invariant reference.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>set.seed(1234)</code></td>
+<td>Makes the simulation reproducible.</td>
+</tr>
+<tr class="even">
+<td><code>correction = "Ripley"</code></td>
+<td>Adjusts for neighbours that cannot be observed beyond the study boundary.</td>
+</tr>
+<tr class="odd">
+<td><code>nsim = 28</code></td>
+<td>Generates 28 simulated patterns under CSR.</td>
+</tr>
+<tr class="even">
+<td><code>rank = 1</code></td>
+<td>Uses the lowest and highest simulated values as envelope limits at each distance.</td>
+</tr>
+<tr class="odd">
+<td><code>global = FALSE</code></td>
+<td>Produces a pointwise envelope, assessing each distance separately.</td>
+</tr>
+</tbody>
+</table>
+<p>Interpreting the observed curve relative to the envelope:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Observed curve</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Above the upper envelope</td>
+<td>Evidence of clustering relative to CSR at those distances.</td>
+</tr>
+<tr class="even">
+<td>Below the lower envelope</td>
+<td>Evidence of regularity relative to CSR at those distances.</td>
+</tr>
+<tr class="odd">
+<td>Inside the envelope</td>
+<td>No clear departure from CSR detected at those distances. This does not prove randomness.</td>
+</tr>
+</tbody>
+</table>
+<p>The observed L-function curve lies well above the upper CSR simulation envelope across almost all positive distances shown, up to approximately 23 km. This provides evidence of spatial clustering relative to complete spatial randomness in the sampled BMR accidents. There is no indication of regularity over this distance range.</p>
+<p>The steep rise at short distances indicates an excess of nearby accident pairs compared with the uniform random reference. However, this pattern may reflect concentrations along roads and differences in traffic volume, rather than interaction between accidents.</p>
+</section>
+<section id="task-4-integration-and-interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="task-4-integration-and-interpretation">Task 4: <strong>Integration and Interpretation</strong></h2>
+<p>The first-order KDE analysis shows that recorded accidents are unevenly distributed across BMR. Higher intensity appears along narrow corridors, particularly in the southeastern area, while much of the western and northern area has lower intensity. The Gaussian kernel uses an automatically selected Diggle bandwidth and edge correction.</p>
+<p>The second-order L-function analysis shows that the observed curve lies above the upper CSR simulation envelope across almost all positive distances displayed, up to approximately 23 km. This indicates clustering relative to complete spatial randomness, but does not establish interaction between accidents.</p>
+<p>The findings are broadly consistent. KDE identifies where concentrations occur, while the L-function examines departures from a uniform random reference across distances. Road layout, traffic volume and reporting differences could explain both patterns without accidents influencing one another.</p>
+<p>Some limitations remain. KDE depends on bandwidth selection. The L-function uses a sample of up to 1,000 accidents and a pointwise simulation envelope, so sampling uncertainty and distance-specific interpretation must also be considered.</p>
+<p>Alternative explanations include the distribution of roads, traffic volume and reporting coverage.</p>
+</section>
+<section id="task-5-geovisualisation-and-analytical-interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="task-5-geovisualisation-and-analytical-interpretation">Task 5: Geovisualisation and Analytical Interpretation</h2>
+<section id="kde-map" class="level3">
+<h3 class="anchored" data-anchor-id="kde-map">KDE map</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  kde_diggle,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Recorded Accident Intensity in BMR, 2022"</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The KDE map suggests that recorded accidents are unevenly distributed across BMR. Brighter areas indicate higher estimated intensity, particularly along a short corridor in the southeastern area. Additional narrow concentrations appear through central and southern areas, while much of the western and northern area has lower intensity. Values represent estimated recorded accidents per square kilometre during 2022.</p>
+<p>However, the selected Diggle bandwidth of approximately 23 metres is much smaller than the default pixels, approximately 979 × 737 metres. The surface therefore does not adequately resolve this bandwidth, making local details and peak values unreliable. Concentrations also do not establish higher risk per road user because traffic exposure is unavailable.</p>
+</section>
+<section id="l-function-graph" class="level3">
+<h3 class="anchored" data-anchor-id="l-function-graph">L-function graph</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  L_accidents, . <span class="sc">-</span> r <span class="sc">~</span> r,</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"BMR Accidents: Sampled L-function"</span>,</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Distance (km)"</span>,</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"L(r) - r"</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The observed L-function curve lies well above the upper CSR simulation envelope across almost all positive distances displayed, extending to approximately 23 km. This indicates clustering relative to complete spatial randomness. The steep increase at short distances reflects an excess of nearby accident pairs compared with the uniform random reference. No evidence of regularity is apparent over the displayed range.</p>
+<p>The analysis uses a random sample of up to 1,000 accidents, so results may vary with the sample. The envelope is pointwise and does not provide a global significance test. Road layout, uneven traffic exposure and reporting differences could explain the departure from CSR without interaction between accidents. The graph identifies distance scales of departure but does not locate specific accident hotspots.</p>
+</section>
+</section>
+<section id="task-6-public-safety-planning-and-management" class="level2">
+<h2 class="anchored" data-anchor-id="task-6-public-safety-planning-and-management">Task 6: Public-Safety Planning and Management</h2>
+<p>The findings can support the initial identification of areas requiring closer road-safety investigation in BMR. The KDE map suggests concentrations of recorded accidents along narrow corridors, particularly in the southeastern area. The sampled L-function indicates clustering relative to complete spatial randomness across much of the examined distance range. These findings describe spatial patterns but do not establish their causes.</p>
+<p>For transportation planning, the identified concentrations could guide the selection of locations for road-safety inspections. Authorities could investigate road conditions, junction design, lighting and traffic management at these locations. However, the analysis does not demonstrate that any of these factors caused the accidents.</p>
+<p>For emergency response, the accident distribution could help identify areas where response coverage should be reviewed. Decisions about ambulance positioning or additional resources would require information on accident severity, existing facilities, travel times and service demand. The current analysis alone cannot determine suitable facility locations.</p>
+<p>For resource allocation, areas with repeated recorded accidents could receive priority for further assessment. However, lower recorded intensity should not automatically justify reducing resources elsewhere. It may reflect lower traffic exposure, incomplete reporting or fewer but more severe accidents.</p>
+<p>The results therefore support preliminary screening and further investigation. Traffic exposure, accident severity and reporting coverage are needed to assess risk and select appropriate interventions. As the analysis covers 2022, more recent records would also be needed for present-day planning.</p>
+</section>
+</section>
+<section id="bonus-value-added-analysis" class="level1">
+<h1>Bonus: Value-Added Analysis</h1>
+<p>The additional research question is: Do the accident concentrations identified in the annual KDE remain in similar locations throughout 2022 or do they change between months?</p>
+<p>Spatio-temporal KDE extends the annual analysis by incorporating incident month. This is useful because an annual map can conceal changes in the geographic distribution of accidents. Persistent concentrations could identify locations for continuing road-safety investigation, while concentrations appearing in particular months would lead to investigation of temporary conditions.</p>
+<p>The analysis examines changes in recorded accident distributions and does not establish their causes or higher risk per road user.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sparr)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Use incident month as the point attribute</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>accidents_month <span class="ot">&lt;-</span> accidents_sf <span class="sc">%&gt;%</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">incident_time =</span> <span class="fu">dmy_hm</span>(</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>      incident_datetime,</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">tz =</span> <span class="st">"Asia/Bangkok"</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">Month_num =</span> <span class="fu">month</span>(incident_time)</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Month_num) <span class="sc">%&gt;%</span></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.ppp</span>()</span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Retain accidents inside BMR</span></span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>accidents_month <span class="ot">&lt;-</span> accidents_month[bmr_owin]</span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate spatio-temporal KDE</span></span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>monthly_kde <span class="ot">&lt;-</span> <span class="fu">spattemp.density</span>(accidents_month)</span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect bandwidths and observation period</span></span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(monthly_kde)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Spatiotemporal Kernel Density Estimate
+
+Bandwidths
+  h = 4882.467 (spatial)
+  lambda = 0.0285 (temporal)
+
+No. of observations
+  3599 
+
+Spatial bound
+  Type: polygonal
+  2D enclosure: [587130.4, 712441.7] x [1484749, 1579087]
+
+Temporal bound
+  [1, 12]
+
+Evaluation
+  128 x 128 x 12 trivariate lattice
+  Density range: [9.448582e-22, 2.845214e-09]</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display all months using a common colour scale</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>) {</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    monthly_kde, i,</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">override.par =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">fix.range =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="fu">paste</span>(<span class="st">"BMR Accidents, 2022: Month"</span>, i)</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-9-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-9-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-9-5.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-9-6.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-9-7.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-9-8.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-9-9.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-9-10.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-9-11.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-9-12.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The monthly maps show recurring accident concentrations in central and southeastern BMR, while western areas generally have lower estimated density. Using the shared colour scale, January and December show more prominent concentrations than February. December displays a particularly strong southeastern concentration.</p>
+<p>This extends the annual analysis by showing that broadly similar locations remain prominent, while the strength and extent of concentrations vary between months. These patterns could guide continuing road-safety investigation and closer examination of January and December.</p>
+<p>The analysis includes 3,599 accidents. The automatically selected spatial bandwidth is approximately 4.88 km, while the temporal bandwidth is 0.0285 months. This provides little smoothing between months, so the maps primarily show monthly differences. One year of observations cannot establish recurring seasonality, and traffic exposure would be needed to assess risk per road user.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

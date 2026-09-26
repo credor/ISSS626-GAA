@@ -1,0 +1,371 @@
+---
+title: "Road Accidents in BMR"
+subtitle: "2022 · Executive Summary"
+author: "Murat Kaya"
+format:
+  revealjs:
+    theme: simple
+    slide-level: 2
+    slide-number: c/t
+    width: 1280
+    height: 800
+    margin: 0.06
+    center: false
+    transition: fade
+    controls: true
+    progress: true
+    navigation-mode: linear
+    embed-resources: true
+    include-in-header:
+      text: |
+        <style>
+        .reveal { font-family: Arial, sans-serif; font-size: 29px; color: #172b3a; }
+        .reveal h1, .reveal h2, .reveal h3 { font-family: Arial, sans-serif; color: #143c52; text-transform: none; }
+        .reveal h1 { font-size: 2.15em; }
+        .reveal h2 { font-size: 1.48em; margin-bottom: 0.65em; }
+        .reveal p, .reveal li { line-height: 1.35; }
+        .reveal li { margin-bottom: 0.45em; }
+        .reveal strong { color: #126b72; }
+        .reveal .small { font-size: 0.76em; }
+        .reveal .caveat { font-size: 0.8em; color: #73521b; }
+        .reveal .columns { gap: 1.5em; }
+        .reveal table { font-size: 0.84em; width: 100%; }
+        .reveal table th, .reveal table td { padding: 0.48em; }
+        .reveal a { color: #126b72; }
+        .reveal #title-slide { text-align: left; }
+        .reveal .slide-number { font-size: 16px; }
+        </style>
+execute:
+  echo: false
+  warning: false
+  message: false
+  freeze: false
+---
+## Contents
+
+```{r}
+#| label: setup
+#| include: false
+
+pacman::p_load(sf, tidyverse, spatstat, tmap, knitr, rmarkdown, sparr)
+
+accidents <- read_csv("data/aspatial/thai_road_accident_2022.csv")
+thailand_adm1 <- st_read(
+  "data/geospatial/geoBoundaries-THA-ADM1.geojson"
+)
+
+# Apply the preparation described in the report in a consistent sequence.
+accidents_clean <- accidents %>%
+  distinct() %>%
+  mutate(
+    incident_time = lubridate::dmy_hm(
+      incident_datetime, tz = "Asia/Bangkok"
+    )
+  ) %>%
+  filter(
+    !is.na(incident_time),
+    lubridate::year(incident_time) == 2022,
+    is.finite(latitude),
+    is.finite(longitude),
+    between(latitude, -90, 90),
+    between(longitude, -180, 180)
+  ) %>%
+  select(-any_of(c("province_th", "route")))
+
+bmr <- thailand_adm1 %>%
+  filter(shapeISO %in% c(
+    "TH-10", "TH-11", "TH-12", "TH-13", "TH-73", "TH-74"
+  )) %>%
+  st_transform(crs = 32647)
+
+accidents_sf <- accidents_clean %>%
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>%
+  st_transform(crs = 32647)
+
+accidents_ppp <- as.ppp(accidents_sf)
+bmr_owin <- as.owin(bmr)
+accidents_bmr_ppp <- unmark(accidents_ppp[bmr_owin])
+accidents_bmr_km <- rescale.ppp(accidents_bmr_ppp, 1000, "km")
+
+kde_diggle <- density(
+  accidents_bmr_km,
+  sigma = bw.diggle,
+  edge = TRUE,
+  kernel = "gaussian"
+)
+
+set.seed(1234)
+accidents_sample <- accidents_bmr_km[
+  sample(
+    npoints(accidents_bmr_km),
+    min(1000, npoints(accidents_bmr_km))
+  )
+]
+
+L_accidents <- envelope(
+  accidents_sample,
+  Lest,
+  correction = "Ripley",
+  nsim = 28,
+  nrval = 100,
+  global = FALSE
+)
+
+accidents_month <- accidents_sf %>%
+  mutate(Month_num = lubridate::month(incident_time)) %>%
+  select(Month_num) %>%
+  as.ppp()
+accidents_month <- accidents_month[bmr_owin]
+monthly_kde <- spattemp.density(accidents_month)
+```
+
+1.  Research question, study area and data
+2.  Data preparation and analytical approach
+3.  Annual, second-order and monthly findings
+4.  Integrated evidence and limitations
+5.  Public-safety implications
+
+## Research questions
+
+**Where and when are recorded accidents concentrated in BMR?**
+
+- How does recorded accident intensity vary across the region in 2022?
+- Does the pattern show clustering or regularity relative to complete spatial randomness?
+- Do concentrations remain in similar locations between months?
+
+The purpose is to identify areas for closer road-safety investigation.
+
+::: notes
+Source: Objectives, Tasks 2 and 3 and Bonus: Value-Added Analysis. Each point represents one recorded accident. The report examines spatial patterns and does not estimate risk per road user or establish accident causes.
+:::
+
+## Study area and data
+
+:::::: columns
+::: {.column width="53%"}
+```{r}
+#| label: study-area
+#| fig-width: 7
+#| fig-height: 5.2
+#| out-width: 100%
+#| fig-alt: "Recorded road accident locations within the six-province BMR study window in 2022."
+plot(
+  accidents_bmr_km,
+  main = "Recorded Road Accidents in BMR, 2022"
+)
+```
+:::
+
+:::: {.column width="47%"}
+**Bangkok Metropolitan Region**
+
+Bangkok, Nonthaburi, Pathum Thani, Samut Prakan, Samut Sakhon and Nakhon Pathom.
+
+**Period:** 1 January to 31 December 2022.
+
+**Reported BMR observations:** 3,599 accidents in the monthly analysis.
+
+::: small
+[Kaggle accident records](https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022) and [HDX / geoBoundaries ADM1 boundaries](https://data.humdata.org/dataset/geoboundaries-admin-boundaries-for-thailand).
+
+Accessed 24 September 2026.
+:::
+::::
+::::::
+
+::: notes
+Source: Study Design and Assumptions, Data Acquisition and Bonus. The original accident source covers 2019–2022 across Thailand. The report restricts its study to 2022 and the six BMR provinces. It describes the administrative boundaries as a static layer containing 77 administrative units.
+:::
+
+## Data preparation
+
+- Remove exact duplicate rows and exclude records outside 2022.
+- Remove records with missing, non-finite or out-of-range coordinates.
+- Retain separate accidents at the same coordinates.
+- Convert WGS 84 points and boundaries to UTM Zone 47N.
+- Retain points inside the BMR observation window and rescale spatial distances to kilometres.
+
+::: small
+Coordinates are assumed to represent accident locations adequately. The incident date defines the study period.
+:::
+
+::: notes
+Source: Task 1 and the spatial preparation in Task 2. The report removes the province_th and route columns. It describes 21,032 national records and 16 variables after the earlier year and column selection. Those figures are not presented as the final spatially filtered BMR total.
+:::
+
+## Analytical approach
+
+| Analysis | Question answered | Main choices |
+|------------------------|------------------------|------------------------|
+| Annual KDE | Where are accidents concentrated? | Gaussian kernel, Diggle bandwidth and edge correction |
+| Sampled L-function | Does the pattern depart from CSR? | Up to 1,000 accidents, 28 simulations and Ripley correction |
+| Spatio-temporal KDE | Do concentrations change between months? | Incident month and a shared colour scale |
+
+**CSR reference:** independent events with uniform intensity throughout the study window.
+
+::: small
+The L-function envelope is pointwise. Roads and traffic are unevenly distributed, limiting the suitability of the uniform reference.
+:::
+
+::: notes
+Source: Tasks 2 and 3 and Bonus. The report sets seed 1234 and global = FALSE. Plotting L(r) minus r gives a reference of zero under CSR. The null model provides a simple baseline, but departure from it does not establish interaction between accidents.
+:::
+
+## Annual accident intensity
+
+:::::: columns
+::: {.column width="59%"}
+```{r}
+#| label: annual-kde
+#| fig-width: 7
+#| fig-height: 5.4
+#| out-width: 100%
+#| fig-alt: "Annual Gaussian KDE of recorded accidents in BMR using the report's Diggle bandwidth."
+plot(kde_diggle, main = "Accident Intensity in BMR, 2022")
+```
+:::
+
+:::: {.column width="41%"}
+The report identifies:
+
+- Higher intensity along a short southeastern corridor.
+- Additional central and southern concentrations.
+- Lower intensity across much of the west and north.
+
+::: caveat
+The reported 23 m bandwidth is much smaller than the approximately 979 × 737 m pixels. Local details and peak values are unreliable.
+:::
+::::
+::::::
+
+::: notes
+Source: Tasks 2 and 5. Density units are estimated recorded accidents per square kilometre during 2022. This slide preserves the original Diggle analysis and the limitation explicitly stated in the report. It does not substitute the fixed 1 km bandwidth discussed outside the attached file.
+:::
+
+## Clustering relative to CSR
+
+:::::: columns
+::: {.column width="63%"}
+```{r}
+#| label: sampled-l
+#| fig-width: 8
+#| fig-height: 5.7
+#| out-width: 100%
+#| fig-alt: "Observed sampled L-function minus distance compared with its pointwise CSR simulation envelope."
+plot(
+  L_accidents, . - r ~ r,
+  main = "BMR Accidents: Sampled L-function",
+  xlab = "Distance (km)",
+  ylab = "L(r) - r"
+)
+```
+:::
+
+:::: {.column width="37%"}
+The report places the observed curve above the upper envelope across almost all positive distances shown, up to approximately **23 km**.
+
+This supports clustering **relative to CSR** in the sample.
+
+::: caveat
+Uneven roads and traffic exposure could explain this departure without interaction between accidents. The envelope is not a global significance test.
+:::
+::::
+::::::
+
+::: notes
+Source: Tasks 3 and 5. The report finds no indication of regularity across the displayed distance range. The sample contains up to 1,000 accidents and the results may vary with the sample. The graph identifies distances of departure but does not locate particular accident hotspots.
+:::
+
+## Monthly accident concentrations
+
+:::::: columns
+::: {.column width="33%"}
+```{r}
+#| label: monthly-january
+#| fig-width: 6
+#| fig-height: 5
+#| out-width: 100%
+#| fig-alt: "January spatio-temporal KDE, using the colour range shared by all twelve months."
+plot(monthly_kde, 1, override.par = TRUE, fix.range = TRUE,
+     main = "January")
+```
+:::
+
+::: {.column width="33%"}
+```{r}
+#| label: monthly-february
+#| fig-width: 6
+#| fig-height: 5
+#| out-width: 100%
+#| fig-alt: "February spatio-temporal KDE, using the colour range shared by all twelve months."
+plot(monthly_kde, 2, override.par = TRUE, fix.range = TRUE,
+     main = "February")
+```
+:::
+
+::: {.column width="33%"}
+```{r}
+#| label: monthly-december
+#| fig-width: 6
+#| fig-height: 5
+#| out-width: 100%
+#| fig-alt: "December spatio-temporal KDE, using the colour range shared by all twelve months."
+plot(monthly_kde, 12, override.par = TRUE, fix.range = TRUE,
+     main = "December")
+```
+:::
+::::::
+
+Recurring concentrations appear in central and southeastern BMR. January and December are more prominent than February, with a particularly strong southeastern concentration in December.
+
+::: small
+Reported bandwidths: 4.88 km spatial and 0.0285 months temporal. All maps use a common colour scale.
+:::
+
+::: notes
+Source: Bonus: Value-Added Analysis. These three months illustrate the comparison explicitly made in the report, which plots all twelve months. The temporal bandwidth provides little smoothing between months. The maps describe recorded accident distributions and do not establish their causes or higher risk per road user.
+:::
+
+## Integrated findings
+
+| Analytical view | Contribution |
+|------------------------------------|------------------------------------|
+| Annual KDE | Identifies the reported locations of higher and lower intensity |
+| L-function | Shows departure from a uniform random reference across distances |
+| Monthly KDE | Shows recurring locations with changing prominence between months |
+
+The findings broadly agree that recorded accidents are unevenly distributed.
+
+**Alternative explanations:** road layout, traffic volume and differences in reporting coverage.
+
+::: notes
+Source: Task 4 and Bonus. KDE identifies where concentrations occur, while the L-function examines distances of departure from CSR. Neither analysis establishes that one accident influences another. The annual KDE's resolution problem limits interpretation of its local details.
+:::
+
+## Limitations
+
+- **KDE resolution:** the annual grid does not adequately resolve the reported Diggle bandwidth.
+- **Reference model:** uniform CSR does not represent the uneven distribution of roads and traffic.
+- **Sampling:** the L-function uses up to 1,000 accidents and a pointwise envelope.
+- **Exposure and reporting:** recorded concentration does not establish risk per road user.
+- **Time coverage:** one year cannot establish recurring seasonality. Current planning needs more recent records.
+
+::: notes
+Source: Tasks 3–6 and Bonus. Coordinates are assumed to adequately represent accident locations. Distances are straight-line distances. Bandwidth selection affects KDE patterns and monthly temporal smoothing is very limited. The report does not establish causal explanations.
+:::
+
+## Public-safety implications
+
+| Potential use | Additional information needed |
+|------------------------------------|------------------------------------|
+| Prioritise road-safety inspections at concentrations | Road conditions, junction design, lighting and traffic management |
+| Review emergency response coverage | Severity, existing facilities, travel times and service demand |
+| Consider resource priorities | Traffic exposure, reporting coverage and more recent accident records |
+
+**The findings support preliminary screening and further investigation.**
+
+Lower recorded intensity alone does not justify reducing resources elsewhere.
+
+::: notes
+Source: Task 6. The analysis does not establish that infrastructure or traffic-management factors caused accidents. It cannot determine suitable ambulance facility locations. Lower intensity may reflect lower exposure, incomplete reporting or fewer but more severe accidents.
+:::
