@@ -1,0 +1,160 @@
+---
+title: "In-class Exercise 6: Emerging Hot Spot Analysis"
+date: "September 17, 2026"
+date-modified: "last-modified"
+format: html
+execute:
+  echo: true
+  eval: true
+  message: false
+  warning: false
+  freeze: true
+editor: visual
+---
+
+# 11.2 Getting Started
+
+```{r}
+pacman::p_load(sf, sfdep, tmap, 
+               plotly, tidyverse, 
+               Kendall)
+```
+
+# 11.3 The Data
+
+```{r}
+# Importing geospatial data
+
+hunan <- st_read(
+  dsn = "data/geospatial", 
+  layer = "Hunan") %>% 
+  st_transform(crs = 32650)
+
+# Importing attribute table
+
+GDPPC <- read_csv(
+  "data/aspatial/Hunan_GDPPC.csv")
+```
+
+# 11.4 Creating a Time Series Cube
+
+```{r}
+GDPPC_st <- spacetime(GDPPC, hunan,
+                      .loc_col = "County",
+                      .time_col = "Year")
+
+is_spacetime_cube(GDPPC_st)
+```
+
+# 11.5 Computing Gi\*
+
+```{r}
+# Deriving the spatial weights
+
+GDPPC_nb <- GDPPC_st %>%
+  activate("geometry") %>%
+  mutate(nb = include_self(
+    st_contiguity(geometry)),
+    wt = st_inverse_distance(nb, 
+                             geometry, 
+                             scale = 1,
+                             alpha = 1),
+    .before = 1) %>%
+  set_nbs("nb") %>%
+  set_wts("wt")
+```
+
+# 11.6 Computing Gi\*
+
+```{r}
+gi_stars <- GDPPC_nb %>% 
+  group_by(Year) %>% 
+  mutate(gi_star = local_gstar_perm(
+    GDPPC, nb, wt)) %>% 
+  tidyr::unnest(gi_star)
+```
+
+# 11.7 Mann-Kendall Test
+
+```{r}
+# Mann-Kendall Test on Gi
+
+cbg <- gi_stars %>% 
+  ungroup() %>% 
+  filter(County == "Changsha") |> 
+  select(County, Year, gi_star)
+
+ggplot(data = cbg, 
+       aes(x = Year, 
+           y = gi_star)) +
+  geom_line() +
+  theme_light()
+
+# Interactive Mann-Kendall Plot
+
+p <- ggplot(data = cbg, 
+            aes(x = Year, 
+                y = gi_star)) +
+  geom_line() +
+  theme_light()
+
+ggplotly(p)
+
+# Printing Mann-Kendall test report
+
+cbg %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>% 
+  tidyr::unnest_wider(mk)
+
+# Mann-Kendall test data.frame
+
+ehsa <- gi_stars %>%
+  group_by(County) %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>%
+  tidyr::unnest_wider(mk)
+head(ehsa)
+
+# Mann-Kendall test data.frame
+
+emerging <- ehsa %>% 
+  arrange(sl, abs(tau)) %>% 
+  slice(1:10)
+head(emerging)
+```
+
+# 11.8 Performing Emerging Hotspot Analysis
+
+```{r}
+ehsa <- emerging_hotspot_analysis(
+  x = GDPPC_st, 
+  .var = "GDPPC", 
+  k = 1, 
+  nsim = 99
+)
+
+# Visualising the distribution of EHSA classes
+
+ggplot(data = ehsa,
+       aes(x = classification)) +
+  geom_bar()
+
+# Visualising EHSA
+
+hunan_ehsa <- hunan %>%
+  left_join(ehsa,
+            by = join_by(County == location))
+
+ehsa_sig <- hunan_ehsa  %>%
+  filter(p_value < 0.05)
+tmap_mode("plot")
+tm_shape(hunan_ehsa) +
+  tm_polygons() +
+  tm_borders(fill_alpha = 0.5) +
+  tm_shape(ehsa_sig) +
+  tm_fill("classification") + 
+  tm_borders(fill_alpha = 0.4)
+```
