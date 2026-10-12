@@ -26,6 +26,8 @@ website:
           href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex052.html"
         - text: "Exercise 6: Geographical Segmentation"
           href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex06.html"
+        - text: "Exercise 7: Modelling Geographical Accessibility"
+          href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex07.html"
     - text: "In-Class Exercise"
       menu:
         - text: "In-Class Exercise 4"
