@@ -28,6 +28,8 @@ website:
           href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex06.html"
         - text: "Exercise 7: Modelling Geographical Accessibility"
           href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex07.html"
+        - text: "Exercise 8: Market Area Analysis"
+          href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex08.html"
     - text: "In-Class Exercise"
       menu:
         - text: "In-Class Exercise 4"
