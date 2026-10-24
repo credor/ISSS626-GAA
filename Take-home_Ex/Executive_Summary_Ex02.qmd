@@ -1,0 +1,331 @@
+---
+title: "Geospatial Analytics for Peace"
+subtitle: "Armed conflict in Myanmar at township level, Jan 2021 – Sep 2025"
+author: "Murat Kaya"
+date: "October 25, 2026"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    smaller: true
+    toc: true
+    toc-depth: 2
+    toc-title: "Contents"
+    embed-resources: true
+    footer: "ISSS626 Take-home Exercise 2 · Executive Summary"
+    include-in-header:
+      text: |
+        <style>
+          .reveal h2 { font-size: 1.6em; margin-bottom: 0.4em; }
+          .reveal .slides section.smaller { font-size: 0.62em; }
+          .reveal .slides section.smaller table { font-size: 0.9em; }
+          .reveal .slides section ul { margin-top: 0.2em; }
+          .reveal .slides section li { margin-bottom: 0.35em; }
+          .reveal .slides section img { max-height: 520px; }
+        </style>
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+pacman::p_load(sf, tidyverse, sfdep, tmap, knitr, terra)
+tmap_mode("plot")
+
+mmr_conflict <- read_rds("data/rds/mmr_conflict.rds")
+conflict_st  <- read_rds("data/rds/conflict_st.rds")
+lisa_list    <- read_rds("data/rds/lisa_list.rds")
+ehsa_list    <- read_rds("data/rds/ehsa_list.rds")
+
+# Legends inside the empty space at the bottom-left of Myanmar, no frame
+leg_in <- function(title) {
+  tm_legend(title = title, position = tm_pos_in("left", "bottom"),
+            frame = FALSE, text.size = 0.6, title.size = 0.7)
+}
+no_frame <- tm_layout(frame = FALSE, inner.margins = c(0.02, 0.02, 0.06, 0.02))
+```
+
+## Research question
+
+:::: {.columns}
+
+::: {.column width="55%"}
+**Where is armed conflict in Myanmar concentrated, and how has it evolved since the 2021 military coup?**
+
+- Myanmar has been in armed conflict since 1948, the world's longest-running civil war.
+- The February 2021 coup sharply escalated the fighting: thousands killed and more than three million people displaced.
+:::
+
+::: {.column width="45%"}
+**Objectives**
+
+1. Pinpoint the **hot spots, cold spots and spatial outliers** where violence clusters or behaves unusually compared with surrounding townships.
+2. Reveal **where, how fast and in what pattern** political violence is evolving over space and time.
+
+The aim is to support peace-building and humanitarian planning.
+:::
+
+::::
+
+## Study area and data
+
+:::: {.columns}
+
+::: {.column width="62%"}
+| Data | Source |
+|---|---|
+| Conflict events, Jan 2021 – Sep 2025 | ACLED |
+| Township boundaries (330 townships) | MIMU v9.4 |
+
+**Data preparation**
+
+- Kept ACLED's three **political-violence** types: battles, explosions/remote violence and violence against civilians.
+- Removed events located only at state/region level and duplicate events.
+- Assigned each event to a township with a **spatial join**.
+- Counted events and fatalities per township and per **quarter** (19 quarters).
+:::
+
+::: {.column width="38%"}
+```{r}
+#| fig-height: 5
+#| fig-width: 3
+tm_shape(mmr_conflict) +
+  tm_polygons(fill = "grey90", col = "grey50", lwd = 0.3) +
+  no_frame
+```
+:::
+
+::::
+
+## Analytical approach
+
+| Question | Method |
+|---|---|
+| Is conflict clustered overall? | **Global Moran's I** (999 permutations) |
+| Where are the clusters and outliers? | **Local Moran's I (LISA)** |
+| Where are the hot and cold spots? | **Getis-Ord Gi\*** |
+| How are hot spots changing over time? | **Mann-Kendall test** and **Emerging Hot Spot Analysis (EHSA)** |
+| Do hot spots hold without township boundaries? | **Kernel Density Estimation (KDE)**, value-added analysis |
+
+- **Neighbours:** 8 nearest townships, row-standardised, so island townships also have neighbours.
+- **Space-time cube:** 330 townships × 19 quarters.
+- Only results with **p < 0.05** are shown on the maps.
+
+## Finding 1: Where violence happens
+
+:::: {.columns}
+
+::: {.column width="64%"}
+```{r}
+#| fig-height: 5
+#| fig-width: 6.4
+m1 <- tm_shape(mmr_conflict) +
+  tm_polygons(fill = "events",
+              fill.scale = tm_scale_intervals(breaks = c(0, 1, 10, 25, 50, 100, 200, 500, Inf),
+                                              values = "brewer.yl_or_rd"),
+              fill.legend = leg_in("Events"),
+              col = "grey60", lwd = 0.2) +
+  tm_title("Events", size = 0.9) + no_frame
+
+m2 <- tm_shape(mmr_conflict) +
+  tm_polygons(fill = "fatalities",
+              fill.scale = tm_scale_intervals(breaks = c(0, 1, 10, 50, 100, 250, 500, 1000, Inf),
+                                              values = "brewer.reds"),
+              fill.legend = leg_in("Fatalities"),
+              col = "grey60", lwd = 0.2) +
+  tm_title("Fatalities", size = 0.9) + no_frame
+
+tmap_arrange(m1, m2, ncol = 2)
+```
+:::
+
+::: {.column width="36%"}
+- The **central Dry Zone** (Sagaing, Magway, Mandalay) and the **south-east belt** (Bago East, Kayin, Mon) record the most events and deaths.
+- Many townships there have **over 200 events** and **over 1,000 deaths**.
+- Eastern Shan and the Ayeyarwady delta remain relatively calm.
+:::
+
+::::
+
+## Finding 2: Escalation over time
+
+:::: {.columns}
+
+::: {.column width="64%"}
+```{r}
+#| fig-height: 4.2
+#| fig-width: 6.4
+conflict_st %>%
+  as.data.frame() %>%
+  group_by(qtr) %>%
+  summarise(Battles = sum(battles),
+            `Remote violence` = sum(remote),
+            `Violence against civilians` = sum(vac)) %>%
+  pivot_longer(-qtr, names_to = "type", values_to = "events") %>%
+  ggplot(aes(qtr, events, colour = type)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.2) +
+  labs(x = NULL, y = "Events per quarter", colour = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top")
+```
+:::
+
+::: {.column width="36%"}
+- Events rose from under 200 per type in early 2021 to more than **1,000 per quarter** by 2022.
+- Violence **peaked in late 2023** (about 1,900 remote-violence events and 1,650 battles).
+- Since 2024, **air strikes, shelling and drones** have outnumbered battles.
+:::
+
+::::
+
+## Finding 3: Significant clusters
+
+:::: {.columns}
+
+::: {.column width="64%"}
+```{r}
+#| fig-height: 5
+#| fig-width: 6.4
+lisa_colours <- c("High-High" = "#d7191c", "Low-Low" = "#2c7bb6",
+                  "Low-High" = "#abd9e9", "High-Low" = "#fdae61",
+                  "Not significant" = "grey90")
+
+set.seed(1234)
+gi_events <- mmr_conflict %>%
+  mutate(nb = include_self(st_knn(st_point_on_surface(geometry), k = 8)),
+         wt = st_weights(nb, style = "W"),
+         gi = local_gstar_perm(events, nb, wt, nsim = 999)) %>%
+  unnest(gi) %>%
+  mutate(hcsa = case_when(p_sim >= 0.05 ~ "Not significant",
+                          gi_star > 0   ~ "Hot spot",
+                          TRUE          ~ "Cold spot"),
+         hcsa = factor(hcsa, levels = c("Hot spot", "Cold spot", "Not significant")))
+
+m3 <- tm_shape(lisa_list$events) +
+  tm_polygons(fill = "cluster",
+              fill.scale = tm_scale_categorical(values = lisa_colours, levels.drop = FALSE),
+              fill.legend = leg_in("LISA (p < 0.05)"),
+              col = "grey60", lwd = 0.2) +
+  tm_title("Local Moran's I", size = 0.9) + no_frame
+
+m4 <- tm_shape(gi_events) +
+  tm_polygons(fill = "hcsa",
+              fill.scale = tm_scale_categorical(values = c("#d7191c", "#2c7bb6", "grey90"),
+                                                levels.drop = FALSE),
+              fill.legend = leg_in("Gi* (p < 0.05)"),
+              col = "grey60", lwd = 0.2) +
+  tm_title("Gi* hot and cold spots", size = 0.9) + no_frame
+
+tmap_arrange(m3, m4, ncol = 2)
+```
+:::
+
+::: {.column width="36%"}
+- **Global Moran's I ≈ 0.40–0.43 (p < 0.001)** for all conflict types: violence is clustered, not random.
+- The **central Dry Zone** is the largest High-High cluster and hot spot (31–44 High-High townships, depending on type).
+- **Cold spots:** eastern Shan, the Ayeyarwady delta and the far north.
+:::
+
+::::
+
+## Finding 4: Shifting hot spots
+
+:::: {.columns}
+
+::: {.column width="42%"}
+```{r}
+#| fig-height: 5
+#| fig-width: 3.6
+ehsa_cols <- c("persistent hotspot" = "#a50f15", "intensifying hotspot" = "#de2d26",
+               "consecutive hotspot" = "#fb6a4a", "new hotspot" = "#fc9272",
+               "diminishing hotspot" = "#e6550d", "sporadic hotspot" = "#fdae6b",
+               "oscilating hotspot" = "#fdd0a2", "oscillating hotspot" = "#fdd0a2",
+               "historical hotspot" = "#c994c7", "persistent coldspot" = "#08519c",
+               "intensifying coldspot" = "#3182bd", "consecutive coldspot" = "#6baed6",
+               "new coldspot" = "#9ecae1", "diminishing coldspot" = "#4292c6",
+               "sporadic coldspot" = "#c6dbef", "oscilating coldspot" = "#9e9ac8",
+               "oscillating coldspot" = "#9e9ac8", "historical coldspot" = "#bcbddc",
+               "no pattern detected" = "grey75")
+
+ehsa_sig <- mmr_conflict %>%
+  left_join(ehsa_list$events, by = c("TS_PCODE" = "location")) %>%
+  filter(p_value < 0.05)
+present <- intersect(names(ehsa_cols), unique(ehsa_sig$classification))
+ehsa_sig <- ehsa_sig %>% mutate(classification = factor(classification, levels = present))
+
+tm_shape(mmr_conflict) +
+  tm_polygons(fill = "grey95", col = "grey70", lwd = 0.2) +
+tm_shape(ehsa_sig) +
+  tm_polygons(fill = "classification",
+              fill.scale = tm_scale_categorical(values = unname(ehsa_cols[present])),
+              fill.legend = leg_in("EHSA (p < 0.05)"),
+              col = "grey50", lwd = 0.2) +
+  no_frame
+```
+:::
+
+::: {.column width="58%"}
+**Mann-Kendall test on quarterly Gi\***
+
+| Trend | Townships |
+|---|---|
+| No significant trend | 192 |
+| Significant decrease | 88 |
+| Significant increase | 50 |
+
+- The strongest increases are in **Bago (West)**, led by Okpho (tau = 0.743), with parts of Magway and Mandalay: conflict is **spreading south from the Dry Zone**.
+- Most townships are **sporadic** hot or cold spots: fighting moves from quarter to quarter.
+- A few **consecutive hot spots** in Kachin and Shan are emerging areas of concern.
+:::
+
+::::
+
+## Finding 5: Hidden urban violence
+
+:::: {.columns}
+
+::: {.column width="42%"}
+```{r}
+#| eval: !expr file.exists("data/rds/kde_all.tif")
+#| fig-height: 5
+#| fig-width: 3.6
+tm_shape(terra::rast("data/rds/kde_all.tif")) +
+  tm_raster(col.scale = tm_scale_continuous(values = "brewer.yl_or_rd"),
+            col.legend = leg_in("Events per 100 km²")) +
+tm_shape(mmr_conflict) +
+  tm_borders(col = "grey50", lwd = 0.2) +
+  no_frame
+```
+:::
+
+::: {.column width="58%"}
+**Kernel Density Estimation** measures events per km² directly from the points, without township boundaries.
+
+- **14 of the 15** highest-density townships are in **Yangon** (about 120–128 events per 100 km²).
+- None is a High-High cluster in the LISA results: Yangon's townships are so small that each records only a modest count.
+- Outside Yangon, the densest township is **Salingyi (Sagaing)**, confirming the Dry Zone hot spot.
+
+Results depend on the choice of spatial unit (the modifiable areal unit problem).
+:::
+
+::::
+
+## Limitations
+
+- **Reporting bias:** ACLED depends on media and local reports, so remote areas and places under internet shutdowns may be under-recorded.
+- **Location precision:** events known only at state/region level were removed, and many events share the coordinates of the nearest town.
+- **Counts, not rates:** population is not taken into account, so large townships may record more events simply because of their size.
+- **Fatalities** are conservative ACLED estimates.
+- **Method choices:** results depend on the 8-nearest-neighbour weights, township boundaries, the quarterly time step and the 15 km KDE bandwidth.
+- **EHSA filtering:** only townships with a significant trend are shown, so stable hot spots such as much of the Dry Zone are under-represented.
+
+## Public-safety implications
+
+- **Central Dry Zone** (Sagaing, Magway, Mandalay): the most consistent hot spot for events and fatalities, and the top priority for humanitarian support and civilian protection.
+- **South-east belt** (Bago East, Kayin, Mon): a second major cluster of battles and violence against civilians.
+- **Bago (West):** the strongest increasing trends; monitor as conflict spreads south from the Dry Zone.
+- **Kachin and Shan:** consecutive and oscillating hot spots can serve as early-warning areas.
+- **Yangon:** urban violence is underestimated by township-level analysis and needs separate attention.
+- **Cold spots** (eastern Shan, Ayeyarwady delta): potentially safer areas for displaced people and aid operations.
