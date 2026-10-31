@@ -30,6 +30,10 @@ website:
           href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex07.html"
         - text: "Exercise 8: Market Area Analysis"
           href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex08.html"
+        - text: "Exercise 9: Calibrating Hedonic Pricing Model"
+          href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex09.html"
+        - text: "Exercise 10: Geographically Weighted Predictive Models"
+          href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_ex10.html"
     - text: "In-Class Exercise"
       menu:
         - text: "In-Class Exercise 4"

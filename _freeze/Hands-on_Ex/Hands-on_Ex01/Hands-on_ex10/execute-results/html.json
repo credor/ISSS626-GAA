@@ -1,0 +1,15 @@
+{
+  "hash": "1f622e3762ac1c360f468c78c2280fd0",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Hands-on Exercise 10: Geographically Weighted Predictive Models\"\ndate: \"October 22, 2026\"\ndate-modified: \"last-modified\"\nformat: html\nexecute:\n  echo: true\n  eval: true\n  message: false\n  warning: false\n  freeze: true\neditor: visual\n---\n\n# 14.3 Installing and Loading R packages\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(sf, spdep, GWmodel, SpatialML, \n               tmap, rsample, Metrics, \n               ranger, tidyverse)\n```\n:::\n\n\n# \n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

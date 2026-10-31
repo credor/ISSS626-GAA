@@ -168,7 +168,7 @@ acled_ts <- acled_ts %>%
 For each township the following are counted over the study period:
 
 | Variable     | Meaning                                                    |
-|---------------------|---------------------------------------------------|
+|--------------|------------------------------------------------------------|
 | `events`     | All political-violence events                              |
 | `battles`    | Battles                                                    |
 | `remote`     | Explosions/remote violence (air strikes, shelling, drones) |

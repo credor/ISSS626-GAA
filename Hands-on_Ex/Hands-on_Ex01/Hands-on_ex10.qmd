@@ -1,0 +1,23 @@
+---
+title: "Hands-on Exercise 10: Geographically Weighted Predictive Models"
+date: "October 22, 2026"
+date-modified: "last-modified"
+format: html
+execute:
+  echo: true
+  eval: true
+  message: false
+  warning: false
+  freeze: true
+editor: visual
+---
+
+# 14.3 Installing and Loading R packages
+
+```{r}
+pacman::p_load(sf, spdep, GWmodel, SpatialML, 
+               tmap, rsample, Metrics, 
+               ranger, tidyverse)
+```
+
+# 

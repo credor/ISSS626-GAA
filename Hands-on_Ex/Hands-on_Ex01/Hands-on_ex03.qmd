@@ -17,7 +17,7 @@ editor: visual
 Two datasets are used, both covering the 2023 calendar year.
 
 | Dataset | Source | Format | Retrieved | Native CRS |
-|---------------|---------------|---------------|---------------|---------------|
+|----|----|----|----|----|
 | Forest fire detections (MODIS C6.1) | NASA FIRMS | CSV | 10 Sep 2026 | none — lat/long columns |
 | Batas Wilayah Kelurahan/Desa 10K | Indonesia Geospasial (BIG) | ESRI Shapefile | 10 Sep 2026 | WGS 84 (EPSG:4326) |
 
